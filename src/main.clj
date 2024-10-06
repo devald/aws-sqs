@@ -96,14 +96,14 @@
 
 ; Dead Letter Queue and Source queue URL map.
 (defonce dlq-url+source-q-url
-         (-> qs
-             sort
-             (->> (mapv (juxt identity
-                              (fn [q]
-                                (Thread/sleep 500)
-                                (dlq-url->source-q-url! q))))
-                  (remove (comp nil? second))
-                  (into {}))))
+  (-> qs
+      sort
+      (->> (mapv (juxt identity
+                       (fn [q]
+                         (Thread/sleep 500)
+                         (dlq-url->source-q-url! q))))
+           (remove (comp nil? second))
+           (into {}))))
 
 (comment
 
@@ -180,6 +180,7 @@
   (resend-messages-from-dlq dlq-name)
 
   (-> @log count)
+  (-> @log first)
   (-> @log first :req)
   (-> @log first :res :Messages count)
   (-> @log first :res :Messages first)
@@ -238,4 +239,5 @@
   (-> [:q1 :q2 'dlq2 :q3 :q4 'dlq4]
       (->> (map (juxt (fn [dlq] (fake-source-q dlq)) identity))
            (into {}))
-      (dissoc nil)))
+      (dissoc nil))
+  )
